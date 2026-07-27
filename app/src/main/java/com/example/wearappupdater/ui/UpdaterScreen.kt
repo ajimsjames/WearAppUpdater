@@ -82,8 +82,7 @@ fun UpdaterScreen() {
             WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.example.wearmaps", listOf("com.example.wearmaps"), "🗺️"),
             WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.example.wearcompass", listOf("com.example.wearcompass"), "🧭"),
             WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.example.wearwifitools", listOf("com.example.wearwifitools"), "📶"),
-            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", listOf("com.example.wearpdfreader"), "📄"),
-            WatchAppInfo("WearGram", "ajimsjames/WearGram", "com.example.weargram", listOf("com.example.weargram"), "📱")
+            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", listOf("com.example.wearpdfreader"), "📄")
         )
     }
 
