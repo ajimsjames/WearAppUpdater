@@ -37,11 +37,13 @@ data class WatchAppInfo(
     val name: String,
     val repo: String,
     val packageName: String,
+    val packageAliases: List<String> = listOf(packageName),
     val iconEmoji: String
 )
 
 data class AppUpdateState(
     val info: WatchAppInfo,
+    var activePackageName: String = info.packageName,
     var installedVersion: String? = null,
     var latestGitHubVersion: String? = null,
     var releaseNotes: String? = null,
@@ -61,18 +63,18 @@ fun UpdaterScreen() {
 
     val appList = remember {
         listOf(
-            WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.example.wearhealthsuite", "🏥"),
-            WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.example.wearblescanner", "📡"),
-            WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.example.wearbaroalt", "🎈"),
-            WatchAppInfo("WearOSBrowser", "ajimsjames/WearOSBrowser", "com.example.wearosbrowser", "🌐"),
-            WatchAppInfo("WearFileServer", "ajimsjames/WearFileServer", "com.example.wearfileserver", "⚡"),
-            WatchAppInfo("WearFileManager", "ajimsjames/WearOSFileManager", "com.example.wearosfilemanager", "📁"),
-            WatchAppInfo("WearDiagnostics", "ajimsjames/WearDiagnostics", "com.example.weardiagnostics", "🩺"),
-            WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.example.wearmaps", "🗺️"),
-            WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.example.wearcompass", "🧭"),
-            WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.example.wearwifitools", "📶"),
-            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", "📄"),
-            WatchAppInfo("WearGram", "ajimsjames/WearGram", "com.example.weargram", "📱")
+            WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.example.wearhealthsuite", listOf("com.example.wearhealthsuite"), "🏥"),
+            WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.example.wearblescanner", listOf("com.example.wearblescanner"), "📡"),
+            WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.example.wearbaroalt", listOf("com.example.wearbaroalt"), "🎈"),
+            WatchAppInfo("WearOSBrowser", "ajimsjames/WearOSBrowser", "com.example.wearosbrowser", listOf("com.example.wearosbrowser"), "🌐"),
+            WatchAppInfo("WearFileServer", "ajimsjames/WearFileServer", "com.example.wearfileserver", listOf("com.example.wearfileserver"), "⚡"),
+            WatchAppInfo("WearFileManager", "ajimsjames/WearOSFileManager", "com.example.wearfilemanager", listOf("com.example.wearfilemanager", "com.example.wearosfilemanager"), "📁"),
+            WatchAppInfo("WearDiagnostics", "ajimsjames/WearDiagnostics", "com.example.weardiagnostics", listOf("com.example.weardiagnostics"), "🩺"),
+            WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.example.wearmaps", listOf("com.example.wearmaps"), "🗺️"),
+            WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.example.wearcompass", listOf("com.example.wearcompass"), "🧭"),
+            WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.example.wearwifitools", listOf("com.example.wearwifitools"), "📶"),
+            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", listOf("com.example.wearpdfreader"), "📄"),
+            WatchAppInfo("WearGram", "ajimsjames/WearGram", "com.example.weargram", listOf("com.example.weargram"), "📱")
         )
     }
 
@@ -86,8 +88,13 @@ fun UpdaterScreen() {
     fun refreshAllStates() {
         isGlobalRefreshing = true
         appStates = appStates.map { state ->
-            val instVer = getInstalledVersion(context, state.info.packageName)
-            state.copy(installedVersion = instVer, isChecking = true, statusText = "Checking GitHub...")
+            val (detectedPkg, instVer) = detectInstalledVersion(context, state.info.packageAliases)
+            state.copy(
+                activePackageName = detectedPkg ?: state.info.packageName,
+                installedVersion = instVer,
+                isChecking = true,
+                statusText = "Checking GitHub..."
+            )
         }
     }
 
@@ -213,7 +220,7 @@ fun UpdaterScreen() {
                             }
                         },
                         onOpenClick = {
-                            launchApp(context, state.info.packageName)
+                            launchApp(context, state.activePackageName)
                         },
                         onToggleExpand = {
                             appStates = appStates.map {
@@ -344,7 +351,7 @@ fun AppCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // CLEAR VERSION READOUT
+            // CLEAR SIDE-BY-SIDE VERSION READOUT
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -483,29 +490,36 @@ fun launchApp(context: Context, packageName: String) {
     }
 }
 
-// Query Package Manager for installed version (Works reliably with QUERY_ALL_PACKAGES)
-fun getInstalledVersion(context: Context, packageName: String): String? {
-    return try {
-        val pm = context.packageManager
-        val pkgInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-        } else {
-            @Suppress("DEPRECATION")
-            pm.getPackageInfo(packageName, 0)
-        }
-        pkgInfo.versionName
-    } catch (e: PackageManager.NameNotFoundException) {
-        // Fallback: Scan installed packages directly
+// Detect installed version across aliases
+fun detectInstalledVersion(context: Context, aliases: List<String>): Pair<String?, String?> {
+    val pm = context.packageManager
+    for (pkg in aliases) {
         try {
-            val installedApps = context.packageManager.getInstalledPackages(0)
-            for (app in installedApps) {
-                if (app.packageName.equals(packageName, ignoreCase = true)) {
-                    return app.versionName
-                }
+            val pkgInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getPackageInfo(pkg, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.getPackageInfo(pkg, 0)
+            }
+            if (pkgInfo.versionName != null) {
+                return Pair(pkg, pkgInfo.versionName)
             }
         } catch (ignored: Exception) {}
-        null
     }
+
+    // Fallback: Scan all installed packages directly
+    try {
+        val installedApps = pm.getInstalledPackages(0)
+        for (app in installedApps) {
+            for (pkg in aliases) {
+                if (app.packageName.equals(pkg, ignoreCase = true)) {
+                    return Pair(app.packageName, app.versionName)
+                }
+            }
+        }
+    } catch (ignored: Exception) {}
+
+    return Pair(null, null)
 }
 
 // Query GitHub API for latest release tag, body release notes, and APK download URL
@@ -515,7 +529,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 5000
         conn.readTimeout = 5000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.1.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.2.0")
 
         if (conn.responseCode == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }

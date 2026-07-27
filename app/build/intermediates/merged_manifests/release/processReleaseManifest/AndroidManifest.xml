@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.wearappupdater"
-    android:versionCode="2"
-    android:versionName="1.1.0" >
+    android:versionCode="3"
+    android:versionName="1.2.0" >
 
     <uses-sdk
         android:minSdkVersion="30"
@@ -28,6 +28,7 @@
         <package android:name="com.example.wearbaroalt" />
         <package android:name="com.example.wearosbrowser" />
         <package android:name="com.example.wearfileserver" />
+        <package android:name="com.example.wearfilemanager" />
         <package android:name="com.example.wearosfilemanager" />
         <package android:name="com.example.weardiagnostics" />
         <package android:name="com.example.wearmaps" />

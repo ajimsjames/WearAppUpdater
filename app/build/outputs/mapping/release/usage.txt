@@ -27725,7 +27725,7 @@ androidx.compose.foundation.layout.Arrangement:
     public static final androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical SpaceAround
     public static androidx.compose.foundation.layout.Arrangement$Vertical getBottom()
     public static androidx.compose.foundation.layout.Arrangement$Center$1 getSpaceBetween()
-    public static androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical getSpaceEvenly()
+    public static androidx.compose.foundation.layout.Arrangement$Center$1 getSpaceEvenly()
     public static androidx.compose.foundation.layout.Arrangement$Horizontal getStart()
     public static androidx.compose.foundation.layout.Arrangement$Vertical getTop()
 androidx.compose.foundation.layout.BoxChildDataNode
