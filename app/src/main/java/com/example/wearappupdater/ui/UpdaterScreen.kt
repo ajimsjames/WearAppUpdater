@@ -287,6 +287,9 @@ fun UpdaterScreen() {
                         onOpenClick = {
                             launchApp(context, state.activePackageName)
                         },
+                        onUninstallClick = {
+                            uninstallApp(context, state.activePackageName)
+                        },
                         onToggleExpand = {
                             appStates = appStates.map {
                                 if (it.info.packageName == state.info.packageName) it.copy(isExpanded = !it.isExpanded) else it
@@ -323,6 +326,7 @@ fun AppCard(
     state: AppUpdateState,
     onActionClick: () -> Unit,
     onOpenClick: () -> Unit,
+    onUninstallClick: () -> Unit,
     onToggleExpand: () -> Unit
 ) {
     val context = LocalContext.current
@@ -405,11 +409,11 @@ fun AppCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             // =========================================================
-            // ROW 2: OPEN AND REINSTALL/UPDATE BUTTONS ACROSS SECOND ROW
+            // ROW 2: OPEN, ACTION (INSTALL/UPDATE/REINSTALL), AND UNINSTALL BUTTONS
             // =========================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // ▶️ OPEN button if installed
@@ -423,14 +427,14 @@ fun AppCard(
                             .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("▶️ OPEN", color = Color.White, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text("▶️ OPEN", color = Color.White, fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
                 // Install / Update / Reinstall Action Button
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.2f)
                         .clip(RoundedCornerShape(6.dp))
                         .background(actionBtnColor)
                         .clickable(enabled = !state.isDownloading && !state.isChecking && state.downloadUrl != null) {
@@ -442,9 +446,24 @@ fun AppCard(
                     Text(
                         text = actionBtnText,
                         color = Color.White,
-                        fontSize = 8.5.sp,
+                        fontSize = 7.5.sp,
                         fontWeight = FontWeight.Bold
                     )
+                }
+
+                // 🗑️ UNINSTALL button if installed
+                if (instVer != null && !state.isDownloading) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFD50000))
+                            .clickable { onUninstallClick() }
+                            .padding(vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("🗑️ UNINSTALL", color = Color.White, fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 
@@ -607,6 +626,28 @@ fun launchApp(context: Context, packageName: String) {
         }
     } catch (e: Exception) {
         Log.e(TAG, "Failed to launch $packageName", e)
+    }
+}
+
+// Uninstall an installed package
+fun uninstallApp(context: Context, packageName: String) {
+    try {
+        val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+            data = Uri.parse("package:$packageName")
+            putExtra(Intent.EXTRA_RETURN_RESULT, true)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        try {
+            val intent = Intent(Intent.ACTION_DELETE).apply {
+                data = Uri.parse("package:$packageName")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e2: Exception) {
+            Log.e(TAG, "Failed to launch uninstall for $packageName", e2)
+        }
     }
 }
 
