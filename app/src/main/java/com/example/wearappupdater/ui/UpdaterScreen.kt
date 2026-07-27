@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,17 +27,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.wear.compose.foundation.CurvedLayout
-import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedTextStyle
-import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.curvedText
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+
+private const val TAG = "WearAppUpdater"
 
 data class WatchAppInfo(
     val name: String,
@@ -108,29 +112,42 @@ fun UpdaterScreen() {
         refreshAllStates()
     }
 
-    // Query GitHub API for each app
+    // Query GitHub API for each app concurrently in parallel
     LaunchedEffect(isGlobalRefreshing) {
         if (isGlobalRefreshing) {
             withContext(Dispatchers.IO) {
-                val updatedList = appStates.map { state ->
-                    val (latestVer, notes, apkUrl) = fetchLatestGitHubReleaseDetails(state.info.repo)
-                    val instVer = state.installedVersion
-                    val statusMsg = when {
-                        latestVer == null -> "No GitHub release"
-                        instVer == null -> "📥 Not installed (v$latestVer)"
-                        isVersionNewer(latestVer, instVer) -> "⚡ UPDATE AVAILABLE (v$latestVer)"
-                        else -> "🟢 Up to date (v$instVer)"
-                    }
-                    state.copy(
-                        latestGitHubVersion = latestVer,
-                        releaseNotes = notes,
-                        downloadUrl = apkUrl,
-                        isChecking = false,
-                        statusText = statusMsg
-                    )
+                coroutineScope {
+                    appStates.map { state ->
+                        async {
+                            val (latestVer, notes, apkUrl) = fetchLatestGitHubReleaseDetails(state.info.repo)
+                            val instVer = state.installedVersion
+                            val displayVer = latestVer ?: "None"
+                            val statusMsg = when {
+                                latestVer == null -> "No release"
+                                instVer == null -> "📥 Not installed (v$latestVer)"
+                                isVersionNewer(latestVer, instVer) -> "⚡ UPDATE AVAILABLE (v$latestVer)"
+                                else -> "🟢 Up to date (v$instVer)"
+                            }
+                            
+                            withContext(Dispatchers.Main) {
+                                appStates = appStates.map { item ->
+                                    if (item.info.packageName == state.info.packageName) {
+                                        item.copy(
+                                            latestGitHubVersion = displayVer,
+                                            releaseNotes = notes,
+                                            downloadUrl = apkUrl,
+                                            isChecking = false,
+                                            statusText = statusMsg
+                                        )
+                                    } else {
+                                        item
+                                    }
+                                }
+                            }
+                        }
+                    }.awaitAll()
                 }
                 withContext(Dispatchers.Main) {
-                    appStates = updatedList
                     isGlobalRefreshing = false
                 }
             }
@@ -138,13 +155,19 @@ fun UpdaterScreen() {
     }
 
     val pendingUpdatesCount = remember(appStates) {
-        appStates.count { s -> s.latestGitHubVersion != null && isVersionNewer(s.latestGitHubVersion!!, s.installedVersion ?: "") }
+        appStates.count { s -> 
+            val latest = s.latestGitHubVersion
+            latest != null && latest != "None" && isVersionNewer(latest, s.installedVersion ?: "") 
+        }
     }
 
     val filteredApps = remember(appStates, currentFilter) {
         when (currentFilter) {
             FilterType.ALL -> appStates
-            FilterType.UPDATES_ONLY -> appStates.filter { s -> s.latestGitHubVersion != null && isVersionNewer(s.latestGitHubVersion!!, s.installedVersion ?: "") }
+            FilterType.UPDATES_ONLY -> appStates.filter { s -> 
+                val latest = s.latestGitHubVersion
+                latest != null && latest != "None" && isVersionNewer(latest, s.installedVersion ?: "") 
+            }
             FilterType.INSTALLED_ONLY -> appStates.filter { s -> s.installedVersion != null }
         }
     }
@@ -211,7 +234,7 @@ fun UpdaterScreen() {
                             .clickable { refreshAllStates() }
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text("🟢 All Apps Up To Date", color = Color(0xFF00E5FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text(if (isGlobalRefreshing) "⏳ Scanning GitHub..." else "🟢 All Apps Up To Date", color = Color(0xFF00E5FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -287,7 +310,7 @@ fun AppCard(
 ) {
     val instVer = state.installedVersion
     val latestVer = state.latestGitHubVersion
-    val hasUpdate = latestVer != null && (instVer == null || isVersionNewer(latestVer, instVer))
+    val hasUpdate = latestVer != null && latestVer != "None" && (instVer == null || isVersionNewer(latestVer, instVer))
 
     val cardBg = when {
         hasUpdate -> Color(0xFF332000) // Amber accent for pending update
@@ -305,7 +328,7 @@ fun AppCard(
     val actionBtnText = when {
         state.isDownloading -> "⬇️ ${state.downloadProgress}%"
         state.isChecking -> "⏳ Checking"
-        instVer == null && latestVer != null -> "📥 INSTALL"
+        instVer == null && latestVer != null && latestVer != "None" -> "📥 INSTALL"
         hasUpdate -> "⚡ UPDATE"
         else -> "🟢 RE-INSTALL"
     }
@@ -425,7 +448,7 @@ fun AppCard(
                         .background(Color(0xFF21262D))
                         .padding(6.dp)
                 ) {
-                    Text("📜 Release Notes (v${latestVer ?: ""}):", color = Color(0xFF58A6FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                    Text("📜 Release Notes (${latestVer ?: ""}):", color = Color(0xFF58A6FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = state.releaseNotes ?: "",
@@ -455,6 +478,7 @@ fun triggerDownloadAndInstall(
             val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 10000
             connection.readTimeout = 20000
+            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.4.0")
             connection.connect()
 
             val fileLength = connection.contentLength
@@ -496,7 +520,7 @@ fun triggerDownloadAndInstall(
 
             onStateUpdate(state.copy(isDownloading = false, statusText = "Installing..."))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Error downloading APK for ${state.info.name}", e)
             onStateUpdate(state.copy(isDownloading = false, statusText = "Error: ${e.localizedMessage}"))
         }
     }.start()
@@ -511,7 +535,7 @@ fun launchApp(context: Context, packageName: String) {
             context.startActivity(launchIntent)
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        Log.e(TAG, "Failed to launch $packageName", e)
     }
 }
 
@@ -552,11 +576,16 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
     return try {
         val url = URL("https://api.github.com/repos/$repoPath/releases/latest")
         val conn = url.openConnection() as HttpURLConnection
-        conn.connectTimeout = 5000
-        conn.readTimeout = 5000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.3.0")
+        conn.connectTimeout = 8000
+        conn.readTimeout = 8000
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.4.0")
+        conn.setRequestProperty("Accept", "application/vnd.github+json")
 
-        if (conn.responseCode == 200) {
+        Log.d(TAG, "Fetching GitHub release for $repoPath...")
+        val code = conn.responseCode
+        Log.d(TAG, "GitHub Response for $repoPath: Code $code")
+
+        if (code == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(responseText)
             val tag = json.optString("tag_name", "").removePrefix("v")
@@ -574,11 +603,14 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
                     }
                 }
             }
+            Log.d(TAG, "Success for $repoPath: Tag = $tag, APK = $downloadUrl")
             Triple(tag.ifEmpty { null }, body, downloadUrl)
         } else {
+            Log.w(TAG, "GitHub API returned HTTP $code for $repoPath")
             Triple(null, null, null)
         }
     } catch (e: Exception) {
+        Log.e(TAG, "Exception fetching $repoPath", e)
         Triple(null, null, null)
     }
 }
@@ -587,8 +619,8 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
 fun isVersionNewer(latest: String, installed: String): Boolean {
     if (installed.isEmpty()) return true
     try {
-        val lParts = latest.split(".").map { it.toIntOrNull() ?: 0 }
-        val iParts = installed.split(".").map { it.toIntOrNull() ?: 0 }
+        val lParts = latest.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
+        val iParts = installed.removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }
         val maxLen = maxOf(lParts.size, iParts.size)
         for (idx in 0 until maxLen) {
             val lVal = lParts.getOrElse(idx) { 0 }
