@@ -1141,7 +1141,7 @@ HSPLo/m;->a(LZ/D;Ljava/util/List;J)LZ/C;
 HSPLo/m;->toString()Ljava/lang/String;
 Lo/n;
 HSPLo/n;-><clinit>()V
-HSPLo/n;->a(LI/e;Lw/m;)LZ/B;
+HSPLo/n;->a(Lo/e;LI/e;Lw/m;)LZ/B;
 Lo/o;
 Lo/p;
 HSPLo/p;-><clinit>()V
@@ -1176,7 +1176,7 @@ HSPLandroidx/compose/foundation/layout/LayoutWeightElement;->f(LI/n;)V
 Lo/t;
 HSPLo/t;->A(Ljava/lang/Object;)Ljava/lang/Object;
 Landroidx/compose/foundation/layout/a;
-HSPLandroidx/compose/foundation/layout/a;->h(JI)J
+HSPLandroidx/compose/foundation/layout/a;->i(JI)J
 Landroidx/compose/foundation/layout/PaddingElement;
 HSPLandroidx/compose/foundation/layout/PaddingElement;-><init>(FFFF)V
 HSPLandroidx/compose/foundation/layout/PaddingElement;->e()LI/n;
@@ -1188,6 +1188,7 @@ HSPLo/u;-><init>(FI)V
 HSPLandroidx/compose/foundation/layout/a;->d(LI/o;F)LI/o;
 HSPLandroidx/compose/foundation/layout/a;->e(LI/o;FF)LI/o;
 HSPLandroidx/compose/foundation/layout/a;->f(LI/o;FFI)LI/o;
+HSPLandroidx/compose/foundation/layout/a;->g(LI/o;FFFI)LI/o;
 Lo/v;
 HSPLo/v;->P(LZ/D;LZ/A;J)LZ/C;
 Lo/w;
@@ -1199,7 +1200,7 @@ HSPLo/x;->toString()Ljava/lang/String;
 Lo/y;
 HSPLo/y;-><init>(III[I)V
 Lo/z;
-HSPLo/z;-><init>(ILo/d;Lo/a;FLa1/a;)V
+HSPLo/z;-><init>(ILo/d;Lo/e;FLa1/a;)V
 HSPLo/z;->equals(Ljava/lang/Object;)Z
 HSPLo/z;->hashCode()I
 HSPLo/z;->a(LZ/D;Ljava/util/List;J)LZ/C;
@@ -1215,7 +1216,7 @@ Lo/C;
 HSPLo/C;-><clinit>()V
 HSPLo/C;->a(Lo/d;LI/f;Lw/m;)LZ/B;
 Lo/D;
-HSPLo/D;->a()LI/o;
+HSPLo/D;->a(F)LI/o;
 Landroidx/compose/foundation/layout/SizeElement;
 HSPLandroidx/compose/foundation/layout/SizeElement;-><init>(FFFFI)V
 HSPLandroidx/compose/foundation/layout/SizeElement;-><init>(FFFF)V
@@ -1226,8 +1227,8 @@ HSPLandroidx/compose/foundation/layout/SizeElement;->f(LI/n;)V
 HSPLandroidx/compose/foundation/layout/a;-><clinit>()V
 HSPLandroidx/compose/foundation/layout/a;->b(F)LI/o;
 HSPLandroidx/compose/foundation/layout/a;->c(F)LI/o;
-HSPLandroidx/compose/foundation/layout/a;->g(F)LI/o;
-HSPLandroidx/compose/foundation/layout/a;->i(F)LI/o;
+HSPLandroidx/compose/foundation/layout/a;->h(F)LI/o;
+HSPLandroidx/compose/foundation/layout/a;->j(F)LI/o;
 Lo/E;
 HSPLo/E;->P(LZ/D;LZ/A;J)LZ/C;
 HSPLandroidx/compose/foundation/layout/a;->a(LI/o;Lw/m;)V
@@ -5834,14 +5835,13 @@ HSPLB0/e;->m(LP0/j;)V
 HSPLk/c;-><clinit>()V
 HSPLk/c;->b(I)I
 HSPLk/c;->c(I)[I
-HSPLB0/e;->v(I)Ljava/lang/String;
-HSPLB0/e;->w(I)Ljava/lang/String;
 HSPLB0/e;->u(I)Ljava/lang/String;
+HSPLB0/e;->v(I)Ljava/lang/String;
+HSPLB0/e;->t(I)Ljava/lang/String;
 HSPLB0/e;->f(Ljava/lang/StringBuilder;IC)Ljava/lang/String;
 HSPLB0/e;->e(Ljava/lang/String;I)Ljava/lang/String;
 HSPLB0/e;->k(ILw/r;ILb0/g;)V
 HSPLB0/e;->b(FII)I
-HSPLB0/e;->q(Lw/r;ZZZZ)V
 HSPLB0/e;->c(III)I
 HSPLB0/e;->g(Ljava/lang/StringBuilder;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 HSPLB0/e;->h(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/StringBuilder;

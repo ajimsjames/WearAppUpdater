@@ -2260,6 +2260,7 @@ androidx.compose.foundation.layout.Arrangement:
     public static synthetic void getEnd$annotations()
     public final androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical getSpaceAround()
     public static synthetic void getSpaceAround$annotations()
+    public final androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical getSpaceBetween()
     public static synthetic void getSpaceBetween$annotations()
     public static synthetic void getSpaceEvenly$annotations()
     public static synthetic void getStart$annotations()
@@ -6127,6 +6128,7 @@ androidx.compose.ui.Alignment$Companion:
     public final androidx.compose.ui.Alignment getCenterStart()
     public static synthetic void getCenterStart$annotations()
     public static synthetic void getCenterVertically$annotations()
+    public final androidx.compose.ui.Alignment$Horizontal getEnd()
     public static synthetic void getEnd$annotations()
     public static synthetic void getStart$annotations()
     public static synthetic void getTop$annotations()
@@ -6870,6 +6872,7 @@ androidx.compose.ui.graphics.Color$Companion:
     public static synthetic void getCyan-0d7_KjU$annotations()
     public final long getDarkGray-0d7_KjU()
     public static synthetic void getDarkGray-0d7_KjU$annotations()
+    public final long getGray-0d7_KjU()
     public static synthetic void getGray-0d7_KjU$annotations()
     public final long getGreen-0d7_KjU()
     public static synthetic void getGreen-0d7_KjU$annotations()
@@ -6891,6 +6894,7 @@ androidx.compose.ui.graphics.Color$Companion:
 androidx.compose.ui.graphics.Color:
     public static final synthetic long access$getCyan$cp()
     public static final synthetic long access$getDarkGray$cp()
+    public static final synthetic long access$getGray$cp()
     public static final synthetic long access$getGreen$cp()
     public static final synthetic long access$getMagenta$cp()
     public static final synthetic long access$getYellow$cp()
@@ -27882,9 +27886,9 @@ androidx.compose.foundation.layout.Arrangement:
     public static final androidx.compose.foundation.layout.Arrangement$Horizontal End
     public static final androidx.compose.foundation.layout.Arrangement INSTANCE
     public static final androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical SpaceAround
+    public static final androidx.compose.foundation.layout.Arrangement$HorizontalOrVertical SpaceBetween
     public static androidx.compose.foundation.layout.Arrangement$Vertical getBottom()
     public static androidx.compose.foundation.layout.Arrangement$Center$1 getCenter()
-    public static androidx.compose.foundation.layout.Arrangement$Center$1 getSpaceBetween()
     public static androidx.compose.foundation.layout.Arrangement$Center$1 getSpaceEvenly()
     public static androidx.compose.foundation.layout.Arrangement$Horizontal getStart()
     public static androidx.compose.foundation.layout.Arrangement$Vertical getTop()
@@ -27966,7 +27970,6 @@ androidx.compose.foundation.layout.PaddingKt:
     public static final androidx.compose.foundation.layout.PaddingValuesImpl PaddingValues-YgX7TsA(float,float)
     public static final float getWeight(androidx.compose.foundation.layout.RowColumnParentData)
     public static final boolean isRelative()
-    public static androidx.compose.ui.Modifier padding-VpY3zN4$default(androidx.compose.ui.Modifier,float)
 androidx.compose.foundation.layout.PaddingNode$measure$1
 androidx.compose.foundation.layout.PaddingNode:
     public static boolean getRtlAware()
@@ -29897,7 +29900,6 @@ androidx.compose.runtime.external.kotlinx.collections.immutable.implementations.
     public static int getExclusion-0nO6VwU()
     public static int getExit-dhqQ-8s()
     public static int getFill-TiuSbCo()
-    public static long getGray-0d7_KjU()
     public static int getHardlight-0nO6VwU()
     public static int getHue-0nO6VwU()
     public static long getInfinite-F1C5BW0()
@@ -30333,13 +30335,13 @@ androidx.compose.ui.Alignment$Companion:
     public static final androidx.compose.ui.Alignment BottomStart
     public static final androidx.compose.ui.Alignment CenterEnd
     public static final androidx.compose.ui.Alignment CenterStart
+    public static final androidx.compose.ui.Alignment$Horizontal End
     public static final androidx.compose.ui.Alignment TopEnd
     public static androidx.compose.ui.Alignment$Vertical getBottom()
     public static androidx.compose.ui.Alignment getBottomCenter()
     public static androidx.compose.ui.Alignment getCenter()
     public static androidx.compose.ui.Alignment$Horizontal getCenterHorizontally()
     public static androidx.compose.ui.Alignment$Vertical getCenterVertically()
-    public static androidx.compose.ui.Alignment$Horizontal getEnd()
     public static androidx.compose.ui.Alignment$Horizontal getStart()
     public static androidx.compose.ui.Alignment$Vertical getTop()
     public static androidx.compose.ui.Alignment getTopCenter()
@@ -30893,6 +30895,7 @@ androidx.compose.ui.graphics.Color:
     public static final androidx.compose.runtime.external.kotlinx.collections.immutable.implementations.immutableMap.TrieNode$Companion Companion
     public static final long Cyan
     public static final long DarkGray
+    public static final long Gray
     public static final long Green
     public static final long Magenta
     public static final long Yellow
