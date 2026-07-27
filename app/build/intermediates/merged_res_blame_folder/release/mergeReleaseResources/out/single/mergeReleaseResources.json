@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.example.wearappupdater.app-release-53:/xml_file_paths.xml.flat",
+        "source": "com.example.wearappupdater.app-main-54:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.example.wearappupdater.app-release-53:/drawable_ic_launcher.xml.flat",
+        "source": "com.example.wearappupdater.app-main-54:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.wearappupdater.app-release-53:/drawable_ic_launcher_round.xml.flat",
+        "source": "com.example.wearappupdater.app-main-54:/drawable/ic_launcher_round.xml"
+    }
+]
