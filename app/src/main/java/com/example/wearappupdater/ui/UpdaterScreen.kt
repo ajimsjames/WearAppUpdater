@@ -76,6 +76,7 @@ fun UpdaterScreen() {
 
     val appList = remember {
         listOf(
+            WatchAppInfo("WearAppUpdater", "ajimsjames/WearAppUpdater", "com.example.wearappupdater", listOf("com.example.wearappupdater"), "🔄"),
             WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.example.wearhealthsuite", listOf("com.example.wearhealthsuite"), "🏥"),
             WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.example.wearblescanner", listOf("com.example.wearblescanner"), "📡"),
             WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.example.wearbaroalt", listOf("com.example.wearbaroalt"), "🎈"),
