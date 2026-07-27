@@ -9,23 +9,27 @@ import android.os.Build
 import android.os.Environment
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.material.Text
@@ -307,9 +311,22 @@ fun AppCard(
     onOpenClick: () -> Unit,
     onToggleExpand: () -> Unit
 ) {
+    val context = LocalContext.current
     val instVer = state.installedVersion
     val latestVer = state.latestGitHubVersion
     val hasUpdate = latestVer != null && latestVer != "None" && (instVer == null || isVersionNewer(latestVer, instVer))
+
+    // Real App Icon from Installed Package
+    val realAppIcon = remember(state.activePackageName, instVer) {
+        try {
+            if (instVer != null) {
+                val drawable = context.packageManager.getApplicationIcon(state.activePackageName)
+                drawable.toBitmap(56, 56).asImageBitmap()
+            } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     val cardBg = when {
         hasUpdate -> Color(0xFF332000) // Amber accent for pending update
@@ -348,7 +365,17 @@ fun AppCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    Text(state.info.iconEmoji, fontSize = 16.sp)
+                    if (realAppIcon != null) {
+                        Image(
+                            bitmap = realAppIcon,
+                            contentDescription = state.info.name,
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Text(state.info.iconEmoji, fontSize = 16.sp)
+                    }
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = state.info.name,
@@ -477,7 +504,7 @@ fun triggerDownloadAndInstall(
             val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 10000
             connection.readTimeout = 20000
-            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.4.0")
+            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.6.0")
             connection.connect()
 
             val fileLength = connection.contentLength
@@ -577,7 +604,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 8000
         conn.readTimeout = 8000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.4.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.6.0")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
 
         Log.d(TAG, "Fetching GitHub release for $repoPath...")
