@@ -258,7 +258,7 @@ fun UpdaterScreen() {
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 items(filteredApps) { state ->
                     AppCard(
@@ -354,126 +354,130 @@ fun AppCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(cardBg)
-            .padding(6.dp)
+            .padding(8.dp)
     ) {
         Column {
-            // 3-COLUMN LAYOUT ROW
+            // =========================================================
+            // ROW 1: APP NAME & REAL ICON COMPLETELY ACROSS FIRST ROW
+            // =========================================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // COLUMN 1: APP NAME & REAL ICON COMPLETELY ON THE LEFT
-                Row(
-                    modifier = Modifier
-                        .weight(1.15f)
-                        .padding(end = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (realAppIcon != null) {
-                        Image(
-                            bitmap = realAppIcon,
-                            contentDescription = state.info.name,
-                            modifier = Modifier
-                                .size(18.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Text(state.info.iconEmoji, fontSize = 14.sp)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = state.info.name,
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                if (realAppIcon != null) {
+                    Image(
+                        bitmap = realAppIcon,
+                        contentDescription = state.info.name,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
                     )
+                } else {
+                    Text(state.info.iconEmoji, fontSize = 16.sp)
                 }
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = state.info.name,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
-                // COLUMN 2: OPEN AND REINSTALL/UPDATE BUTTONS
-                Column(
-                    modifier = Modifier
-                        .weight(0.85f)
-                        .padding(horizontal = 2.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    // ▶️ OPEN button if installed
-                    if (instVer != null && !state.isDownloading) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color(0xFF00C853))
-                                .clickable { onOpenClick() }
-                                .padding(vertical = 3.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("▶️ OPEN", color = Color.White, fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Spacer(modifier = Modifier.height(3.dp))
-                    }
+            Spacer(modifier = Modifier.height(6.dp))
 
-                    // Install / Update / Reinstall Button
+            // =========================================================
+            // ROW 2: OPEN AND REINSTALL/UPDATE BUTTONS ACROSS SECOND ROW
+            // =========================================================
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // ▶️ OPEN button if installed
+                if (instVer != null && !state.isDownloading) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(actionBtnColor)
-                            .clickable(enabled = !state.isDownloading && !state.isChecking && state.downloadUrl != null) {
-                                onActionClick()
-                            }
-                            .padding(vertical = 3.dp),
+                            .background(Color(0xFF00C853))
+                            .clickable { onOpenClick() }
+                            .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = actionBtnText,
-                            color = Color.White,
-                            fontSize = 7.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text("▶️ OPEN", color = Color.White, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // COLUMN 3: VERSION CODES & TAP TO SHOW LATEST FEATURES
-                Column(
+                // Install / Update / Reinstall Action Button
+                Box(
                     modifier = Modifier
-                        .weight(1.0f)
+                        .weight(1f)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF0D1117))
-                        .clickable { onToggleExpand() }
-                        .padding(4.dp),
-                    horizontalAlignment = Alignment.Start
+                        .background(actionBtnColor)
+                        .clickable(enabled = !state.isDownloading && !state.isChecking && state.downloadUrl != null) {
+                            onActionClick()
+                        }
+                        .padding(vertical = 4.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (instVer != null) "Inst: v$instVer" else "Inst: ❌",
-                        color = if (instVer != null) Color(0xFF00E5FF) else Color(0xFFFF5252),
-                        fontSize = 7.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = if (latestVer != null) "Git: v$latestVer" else "Git: ⏳",
-                        color = if (hasUpdate) Color(0xFFFFD54F) else Color(0xFF69F0AE),
-                        fontSize = 7.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = if (state.isExpanded) "📜 Hide" else "📜 Features",
-                        color = Color(0xFF58A6FF),
-                        fontSize = 7.sp,
+                        text = actionBtnText,
+                        color = Color.White,
+                        fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            // Expandable Release Notes / Latest Features Below 3-Column Row
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // =========================================================
+            // ROW 3: VERSION CODES & TAP TO SHOW LATEST FEATURES
+            // =========================================================
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFF0D1117))
+                    .clickable { onToggleExpand() }
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(text = "Installed:", color = Color.Gray, fontSize = 7.5.sp)
+                    Text(
+                        text = if (instVer != null) "v$instVer" else "❌ None",
+                        color = if (instVer != null) Color(0xFF00E5FF) else Color(0xFFFF5252),
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (state.isExpanded) "📜 Hide Notes ▲" else "📜 Features ▼",
+                        color = Color(0xFF58A6FF),
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(text = "GitHub:", color = Color.Gray, fontSize = 7.5.sp)
+                    Text(
+                        text = if (latestVer != null) "v$latestVer" else "Checking...",
+                        color = if (hasUpdate) Color(0xFFFFD54F) else Color(0xFF69F0AE),
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // Expandable Release Notes / Latest Features Below Row 3
             AnimatedVisibility(visible = state.isExpanded && !state.releaseNotes.isNull_or_Empty()) {
                 Column(
                     modifier = Modifier
@@ -513,7 +517,7 @@ fun triggerDownloadAndInstall(
             val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 10000
             connection.readTimeout = 20000
-            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.7.0")
+            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.8.0")
             connection.connect()
 
             val fileLength = connection.contentLength
@@ -613,7 +617,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 8000
         conn.readTimeout = 8000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.7.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.8.0")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
 
         Log.d(TAG, "Fetching GitHub release for $repoPath...")
