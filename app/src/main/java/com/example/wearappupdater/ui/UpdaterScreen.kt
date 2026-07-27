@@ -25,7 +25,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.curvedText
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -149,53 +154,73 @@ fun UpdaterScreen() {
             .fillMaxSize()
             .background(Color.Black)
     ) {
+        // 1. TOP CURVED BEZEL HEADER (Curved along the top round watch rim)
+        CurvedLayout(
+            anchor = 270f, // Top center anchor
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { refreshAllStates() }
+        ) {
+            curvedText(
+                text = "📦 WEAR APP STORE",
+                style = CurvedTextStyle(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00E5FF)
+                )
+            )
+            curvedText(
+                text = if (isGlobalRefreshing) "  ⏳" else "  🔄",
+                style = CurvedTextStyle(
+                    fontSize = 11.sp,
+                    color = Color.White
+                )
+            )
+        }
+
+        // 2. MAIN CONTENT AREA (Offset gracefully below the curved top bezel)
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 38.dp, bottom = 4.dp),
+                .padding(top = 28.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Bar
+            // Pill Badge for Pending Updates Status
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF1C1C1E))
-                    .clickable { refreshAllStates() }
-                    .padding(horizontal = 8.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxWidth(0.85f)
+                    .padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "📦 Wear App Store",
-                    color = Color(0xFF00E5FF),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
                 if (pendingUpdatesCount > 0) {
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .background(Color(0xFFFF9100))
-                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                            .clickable { refreshAllStates() }
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text("$pendingUpdatesCount Updates", color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                        Text("⚡ $pendingUpdatesCount Updates Ready", color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFF1C1C1E))
+                            .clickable { refreshAllStates() }
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text("🟢 All Apps Up To Date", color = Color(0xFF00E5FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-
-                Text(
-                    text = if (isGlobalRefreshing) "⏳" else "🔄",
-                    fontSize = 11.sp
-                )
             }
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-            // Filter Pills
+            // Curved Bezel Filter Pills
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f),
+                modifier = Modifier.fillMaxWidth(0.92f),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 FilterPill("All (${appStates.size})", currentFilter == FilterType.ALL) { currentFilter = FilterType.ALL }
@@ -239,7 +264,7 @@ fun UpdaterScreen() {
 fun FilterPill(label: String, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(if (isSelected) Color(0xFF00E5FF) else Color(0xFF2C2C2E))
             .clickable { onClick() }
             .padding(horizontal = 6.dp, vertical = 3.dp)
@@ -529,7 +554,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 5000
         conn.readTimeout = 5000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.2.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.3.0")
 
         if (conn.responseCode == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }
