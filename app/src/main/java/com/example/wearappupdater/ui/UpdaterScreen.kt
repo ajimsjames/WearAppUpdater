@@ -110,6 +110,18 @@ fun UpdaterScreen() {
         }
     }
 
+    fun updateAllPendingApps() {
+        val pendingApps = appStates.filter { s ->
+            val latest = s.latestGitHubVersion
+            latest != null && latest != "None" && isVersionNewer(latest, s.installedVersion ?: "") && s.downloadUrl != null && !s.isDownloading
+        }
+        pendingApps.forEach { app ->
+            triggerDownloadAndInstall(context, app) { newState ->
+                appStates = appStates.map { if (it.info.packageName == newState.info.packageName) newState else it }
+            }
+        }
+    }
+
     // Initial scan on launch
     LaunchedEffect(Unit) {
         refreshAllStates()
@@ -211,10 +223,10 @@ fun UpdaterScreen() {
                 .padding(top = 28.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Pill Badge for Pending Updates Status
+            // Prominent Pill Badge for Pending Updates Status & BATCH UPDATE ALL Button
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
+                    .fillMaxWidth(0.88f)
                     .padding(vertical = 2.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -224,10 +236,11 @@ fun UpdaterScreen() {
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
                             .background(Color(0xFFFF9100))
-                            .clickable { refreshAllStates() }
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                            .clickable { updateAllPendingApps() }
+                            .padding(horizontal = 10.dp, vertical = 3.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("⚡ $pendingUpdatesCount Updates Ready", color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                        Text("⚡ UPDATE ALL ($pendingUpdatesCount)", color = Color.Black, fontSize = 9.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 } else {
                     Box(
