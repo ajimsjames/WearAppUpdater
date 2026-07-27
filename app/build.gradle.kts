@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.wearappupdater"
         minSdk = 30
         targetSdk = 33
-        versionCode = 9
-        versionName = "1.8.0"
+        versionCode = 10
+        versionName = "1.9.0"
 
         vectorDrawables {
             useSupportLibrary = true

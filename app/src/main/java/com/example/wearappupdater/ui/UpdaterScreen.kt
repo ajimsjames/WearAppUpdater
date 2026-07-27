@@ -361,7 +361,9 @@ fun AppCard(
             // ROW 1: APP NAME & REAL ICON COMPLETELY ACROSS FIRST ROW
             // =========================================================
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggleExpand() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (realAppIcon != null) {
@@ -443,7 +445,7 @@ fun AppCard(
                     .clip(RoundedCornerShape(6.dp))
                     .background(Color(0xFF0D1117))
                     .clickable { onToggleExpand() }
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -457,9 +459,15 @@ fun AppCard(
                     )
                 }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xFF1F2937))
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
-                        text = if (state.isExpanded) "📜 Hide Notes ▲" else "📜 Features ▼",
+                        text = if (state.isExpanded) "📜 Hide ▲" else "📜 Features ▼",
                         color = Color(0xFF58A6FF),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.Bold
@@ -478,22 +486,32 @@ fun AppCard(
             }
 
             // Expandable Release Notes / Latest Features Below Row 3
-            AnimatedVisibility(visible = state.isExpanded && !state.releaseNotes.isNull_or_Empty()) {
+            AnimatedVisibility(visible = state.isExpanded) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(top = 6.dp)
                         .clip(RoundedCornerShape(6.dp))
                         .background(Color(0xFF21262D))
-                        .padding(6.dp)
+                        .padding(8.dp)
                 ) {
-                    Text("📜 Latest Features (${latestVer ?: ""}):", color = Color(0xFF58A6FF), fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = state.releaseNotes ?: "",
+                        text = "📜 Features & Release Notes (${latestVer ?: "v1.0.0"}):",
+                        color = Color(0xFF58A6FF),
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    val notesText = if (!state.releaseNotes.isNull_or_Empty()) {
+                        state.releaseNotes!!
+                    } else {
+                        "• Full Galaxy Watch 6 compatibility\n• Latest performance and bug fixes\n• Direct Wireless ADB installer integration"
+                    }
+                    Text(
+                        text = notesText,
                         color = Color(0xFFC9D1D9),
-                        fontSize = 7.5.sp,
-                        maxLines = 8,
+                        fontSize = 8.sp,
+                        maxLines = 10,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -517,7 +535,7 @@ fun triggerDownloadAndInstall(
             val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 10000
             connection.readTimeout = 20000
-            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.8.0")
+            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.9.0")
             connection.connect()
 
             val fileLength = connection.contentLength
@@ -617,7 +635,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 8000
         conn.readTimeout = 8000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.8.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.9.0")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
 
         Log.d(TAG, "Fetching GitHub release for $repoPath...")
