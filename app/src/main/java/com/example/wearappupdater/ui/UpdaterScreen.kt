@@ -2,9 +2,12 @@ package com.example.wearappupdater.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,12 +44,16 @@ data class AppUpdateState(
     val info: WatchAppInfo,
     var installedVersion: String? = null,
     var latestGitHubVersion: String? = null,
+    var releaseNotes: String? = null,
     var downloadUrl: String? = null,
     var isChecking: Boolean = true,
     var isDownloading: Boolean = false,
     var downloadProgress: Int = 0,
-    var statusText: String = "Checking..."
+    var statusText: String = "Checking...",
+    var isExpanded: Boolean = false
 )
+
+enum class FilterType { ALL, UPDATES_ONLY, INSTALLED_ONLY }
 
 @Composable
 fun UpdaterScreen() {
@@ -64,7 +71,8 @@ fun UpdaterScreen() {
             WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.example.wearmaps", "🗺️"),
             WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.example.wearcompass", "🧭"),
             WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.example.wearwifitools", "📶"),
-            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", "📄")
+            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", "📄"),
+            WatchAppInfo("WearGram", "ajimsjames/WearGram", "com.example.weargram", "📱")
         )
     }
 
@@ -73,6 +81,7 @@ fun UpdaterScreen() {
     }
 
     var isGlobalRefreshing by remember { mutableStateOf(false) }
+    var currentFilter by remember { mutableStateOf(FilterType.ALL) }
 
     fun refreshAllStates() {
         isGlobalRefreshing = true
@@ -82,26 +91,27 @@ fun UpdaterScreen() {
         }
     }
 
-    // Initial check on launch
+    // Initial scan on launch
     LaunchedEffect(Unit) {
         refreshAllStates()
     }
 
-    // Asynchronously query GitHub Releases API for each app
+    // Query GitHub API for each app
     LaunchedEffect(isGlobalRefreshing) {
         if (isGlobalRefreshing) {
             withContext(Dispatchers.IO) {
                 val updatedList = appStates.map { state ->
-                    val (latestVer, apkUrl) = fetchLatestGitHubRelease(state.info.repo)
+                    val (latestVer, notes, apkUrl) = fetchLatestGitHubReleaseDetails(state.info.repo)
                     val instVer = state.installedVersion
                     val statusMsg = when {
-                        latestVer == null -> "No release"
+                        latestVer == null -> "No GitHub release"
                         instVer == null -> "📥 Not installed (v$latestVer)"
                         isVersionNewer(latestVer, instVer) -> "⚡ UPDATE AVAILABLE (v$latestVer)"
                         else -> "🟢 Up to date (v$instVer)"
                     }
                     state.copy(
                         latestGitHubVersion = latestVer,
+                        releaseNotes = notes,
                         downloadUrl = apkUrl,
                         isChecking = false,
                         statusText = statusMsg
@@ -112,6 +122,18 @@ fun UpdaterScreen() {
                     isGlobalRefreshing = false
                 }
             }
+        }
+    }
+
+    val pendingUpdatesCount = remember(appStates) {
+        appStates.count { s -> s.latestGitHubVersion != null && isVersionNewer(s.latestGitHubVersion!!, s.installedVersion ?: "") }
+    }
+
+    val filteredApps = remember(appStates, currentFilter) {
+        when (currentFilter) {
+            FilterType.ALL -> appStates
+            FilterType.UPDATES_ONLY -> appStates.filter { s -> s.latestGitHubVersion != null && isVersionNewer(s.latestGitHubVersion!!, s.installedVersion ?: "") }
+            FilterType.INSTALLED_ONLY -> appStates.filter { s -> s.installedVersion != null }
         }
     }
 
@@ -126,27 +148,52 @@ fun UpdaterScreen() {
                 .padding(top = 38.dp, bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Store Title Header
+            // Header Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth(0.92f)
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color(0xFF1C1C1E))
                     .clickable { refreshAllStates() }
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "📦 Wear App Store & Updater",
+                    text = "📦 Wear App Store",
                     color = Color(0xFF00E5FF),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
+
+                if (pendingUpdatesCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFFF9100))
+                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                    ) {
+                        Text("$pendingUpdatesCount Updates", color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
                 Text(
                     text = if (isGlobalRefreshing) "⏳" else "🔄",
-                    fontSize = 12.sp
+                    fontSize = 11.sp
                 )
+            }
+
+            Spacer(modifier = Modifier.height(3.dp))
+
+            // Filter Pills
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(0.92f),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                FilterPill("All (${appStates.size})", currentFilter == FilterType.ALL) { currentFilter = FilterType.ALL }
+                FilterPill("Updates ($pendingUpdatesCount)", currentFilter == FilterType.UPDATES_ONLY) { currentFilter = FilterType.UPDATES_ONLY }
+                FilterPill("Installed (${appStates.count { it.installedVersion != null }})", currentFilter == FilterType.INSTALLED_ONLY) { currentFilter = FilterType.INSTALLED_ONLY }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -155,7 +202,7 @@ fun UpdaterScreen() {
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                items(appStates) { state ->
+                items(filteredApps) { state ->
                     AppCard(
                         state = state,
                         onActionClick = {
@@ -163,6 +210,14 @@ fun UpdaterScreen() {
                                 triggerDownloadAndInstall(context, state) { newState ->
                                     appStates = appStates.map { if (it.info.packageName == newState.info.packageName) newState else it }
                                 }
+                            }
+                        },
+                        onOpenClick = {
+                            launchApp(context, state.info.packageName)
+                        },
+                        onToggleExpand = {
+                            appStates = appStates.map {
+                                if (it.info.packageName == state.info.packageName) it.copy(isExpanded = !it.isExpanded) else it
                             }
                         }
                     )
@@ -174,14 +229,37 @@ fun UpdaterScreen() {
 }
 
 @Composable
-fun AppCard(state: AppUpdateState, onActionClick: () -> Unit) {
+fun FilterPill(label: String, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) Color(0xFF00E5FF) else Color(0xFF2C2C2E))
+            .clickable { onClick() }
+            .padding(horizontal = 6.dp, vertical = 3.dp)
+    ) {
+        Text(
+            text = label,
+            color = if (isSelected) Color.Black else Color.LightGray,
+            fontSize = 8.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
+    }
+}
+
+@Composable
+fun AppCard(
+    state: AppUpdateState,
+    onActionClick: () -> Unit,
+    onOpenClick: () -> Unit,
+    onToggleExpand: () -> Unit
+) {
     val instVer = state.installedVersion
     val latestVer = state.latestGitHubVersion
     val hasUpdate = latestVer != null && (instVer == null || isVersionNewer(latestVer, instVer))
 
     val cardBg = when {
-        hasUpdate -> Color(0xFF2E1C00) // Highlight amber when update available
-        instVer != null -> Color(0xFF161B22) // Sleek dark gray when installed & up-to-date
+        hasUpdate -> Color(0xFF332000) // Amber accent for pending update
+        instVer != null -> Color(0xFF161B22) // Sleek dark gray for installed
         else -> Color(0xFF1C1C1E)
     }
 
@@ -205,9 +283,11 @@ fun AppCard(state: AppUpdateState, onActionClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(cardBg)
+            .clickable { onToggleExpand() }
             .padding(10.dp)
     ) {
         Column {
+            // App Title & Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -226,44 +306,103 @@ fun AppCard(state: AppUpdateState, onActionClick: () -> Unit) {
                     )
                 }
 
-                // Action Button (Install / Update / Re-install)
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(actionBtnColor)
-                        .clickable(enabled = !state.isDownloading && !state.isChecking && state.downloadUrl != null) {
-                            onActionClick()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Launch Button if app is installed
+                    if (instVer != null && !state.isDownloading) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0xFF00C853))
+                                .clickable { onOpenClick() }
+                                .padding(horizontal = 6.dp, vertical = 4.dp)
+                        ) {
+                            Text("▶️ OPEN", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                         }
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+
+                    // Install / Update / Reinstall Button
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(actionBtnColor)
+                            .clickable(enabled = !state.isDownloading && !state.isChecking && state.downloadUrl != null) {
+                                onActionClick()
+                            }
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = actionBtnText,
+                            color = Color.White,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // CLEAR VERSION READOUT
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFF0D1117))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
                     Text(
-                        text = actionBtnText,
-                        color = Color.White,
-                        fontSize = 8.5.sp,
+                        text = "Installed:",
+                        color = Color.Gray,
+                        fontSize = 8.sp
+                    )
+                    Text(
+                        text = if (instVer != null) "v$instVer" else "❌ Not Installed",
+                        color = if (instVer != null) Color(0xFF00E5FF) else Color(0xFFFF5252),
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "GitHub Latest:",
+                        color = Color.Gray,
+                        fontSize = 8.sp
+                    )
+                    Text(
+                        text = if (latestVer != null) "v$latestVer" else "Checking...",
+                        color = if (hasUpdate) Color(0xFFFFD54F) else Color(0xFF69F0AE),
+                        fontSize = 9.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Version info readout
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Installed: ${instVer ?: "None"}",
-                    color = if (instVer != null) Color.LightGray else Color.Gray,
-                    fontSize = 9.sp
-                )
-                Text(
-                    text = "GitHub: ${latestVer ?: "Checking..."}",
-                    color = if (hasUpdate) Color(0xFFFFD54F) else Color(0xFF00E5FF),
-                    fontSize = 9.sp,
-                    fontWeight = if (hasUpdate) FontWeight.Bold else FontWeight.Normal
-                )
+            // Expandable Release Notes
+            AnimatedVisibility(visible = state.isExpanded && !state.releaseNotes.isNull_or_Empty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 6.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFF21262D))
+                        .padding(6.dp)
+                ) {
+                    Text("📜 Release Notes (v${latestVer ?: ""}):", color = Color(0xFF58A6FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = state.releaseNotes ?: "",
+                        color = Color(0xFFC9D1D9),
+                        fontSize = 8.sp,
+                        maxLines = 6,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -331,29 +470,58 @@ fun triggerDownloadAndInstall(
     }.start()
 }
 
-// Helper: Query Package Manager for installed version
+// Launch an installed package
+fun launchApp(context: Context, packageName: String) {
+    try {
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(launchIntent)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+// Query Package Manager for installed version (Works reliably with QUERY_ALL_PACKAGES)
 fun getInstalledVersion(context: Context, packageName: String): String? {
     return try {
-        val info = context.packageManager.getPackageInfo(packageName, 0)
-        info.versionName
+        val pm = context.packageManager
+        val pkgInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            pm.getPackageInfo(packageName, 0)
+        }
+        pkgInfo.versionName
     } catch (e: PackageManager.NameNotFoundException) {
+        // Fallback: Scan installed packages directly
+        try {
+            val installedApps = context.packageManager.getInstalledPackages(0)
+            for (app in installedApps) {
+                if (app.packageName.equals(packageName, ignoreCase = true)) {
+                    return app.versionName
+                }
+            }
+        } catch (ignored: Exception) {}
         null
     }
 }
 
-// Helper: Query GitHub API for latest release tag and APK download URL
-fun fetchLatestGitHubRelease(repoPath: String): Pair<String?, String?> {
+// Query GitHub API for latest release tag, body release notes, and APK download URL
+fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, String?> {
     return try {
         val url = URL("https://api.github.com/repos/$repoPath/releases/latest")
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 5000
         conn.readTimeout = 5000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.0.0")
+        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.1.0")
 
         if (conn.responseCode == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(responseText)
             val tag = json.optString("tag_name", "").removePrefix("v")
+            val body = json.optString("body", "No release notes available.")
 
             var downloadUrl: String? = null
             val assets = json.optJSONArray("assets")
@@ -367,17 +535,18 @@ fun fetchLatestGitHubRelease(repoPath: String): Pair<String?, String?> {
                     }
                 }
             }
-            Pair<String?, String?>(tag.ifEmpty { null }, downloadUrl)
+            Triple(tag.ifEmpty { null }, body, downloadUrl)
         } else {
-            Pair<String?, String?>(null, null)
+            Triple(null, null, null)
         }
     } catch (e: Exception) {
-        Pair<String?, String?>(null, null)
+        Triple(null, null, null)
     }
 }
 
-// Helper: Simple SemVer comparison (e.g. "1.2.0" > "1.1.0")
+// SemVer comparison (e.g. "1.3.0" > "1.1.0")
 fun isVersionNewer(latest: String, installed: String): Boolean {
+    if (installed.isEmpty()) return true
     try {
         val lParts = latest.split(".").map { it.toIntOrNull() ?: 0 }
         val iParts = installed.split(".").map { it.toIntOrNull() ?: 0 }
@@ -392,4 +561,8 @@ fun isVersionNewer(latest: String, installed: String): Boolean {
         return latest != installed
     }
     return false
+}
+
+private fun String?.isNull_or_Empty(): Boolean {
+    return this == null || this.trim().isEmpty()
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.wearappupdater"
-    android:versionCode="1"
-    android:versionName="1.0.0" >
+    android:versionCode="2"
+    android:versionName="1.1.0" >
 
     <uses-sdk
         android:minSdkVersion="30"
@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -20,6 +21,27 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.type.watch" />
+
+    <queries>
+        <package android:name="com.example.wearhealthsuite" />
+        <package android:name="com.example.wearblescanner" />
+        <package android:name="com.example.wearbaroalt" />
+        <package android:name="com.example.wearosbrowser" />
+        <package android:name="com.example.wearfileserver" />
+        <package android:name="com.example.wearosfilemanager" />
+        <package android:name="com.example.weardiagnostics" />
+        <package android:name="com.example.wearmaps" />
+        <package android:name="com.example.wearcompass" />
+        <package android:name="com.example.wearwifitools" />
+        <package android:name="com.example.wearpdfreader" />
+        <package android:name="com.example.weargram" />
+
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <permission
         android:name="com.example.wearappupdater.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
