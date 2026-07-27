@@ -24220,8 +24220,6 @@ kotlin.text.StringsKt__StringsKt:
     private static final java.lang.String substring(java.lang.CharSequence,int,int)
     public static final java.lang.String substring(java.lang.String,kotlin.ranges.IntRange)
     static synthetic java.lang.String substring$default(java.lang.CharSequence,int,int,int,java.lang.Object)
-    public static final java.lang.String substringAfterLast(java.lang.String,java.lang.String,java.lang.String)
-    public static synthetic java.lang.String substringAfterLast$default(java.lang.String,java.lang.String,java.lang.String,int,java.lang.Object)
     public static final java.lang.String substringBeforeLast(java.lang.String,char,java.lang.String)
     public static final java.lang.String substringBeforeLast(java.lang.String,java.lang.String,java.lang.String)
     public static synthetic java.lang.String substringBeforeLast$default(java.lang.String,char,java.lang.String,int,java.lang.Object)
@@ -37580,7 +37578,6 @@ kotlin.text.StringsKt__StringsKt$rangesDelimitedBy$2:
     public final kotlin.coroutines.CoroutineContext invoke$1()
 kotlin.text.StringsKt__StringsKt$splitToSequence$1
 kotlin.text.StringsKt__StringsKt:
-    public static int lastIndexOf$default(java.lang.String,java.lang.String,int)
     public static final void requireNonNegativeLimit(int)
     public static boolean startsWith$default(java.lang.String,java.lang.String)
     public static final java.lang.String substring(java.lang.CharSequence,kotlin.ranges.IntRange)

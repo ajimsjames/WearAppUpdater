@@ -115,7 +115,7 @@ fun UpdaterScreen() {
         refreshAllStates()
     }
 
-    // Query GitHub API for each app concurrently in parallel
+    // Query GitHub API / Redirect for each app concurrently in parallel
     LaunchedEffect(isGlobalRefreshing) {
         if (isGlobalRefreshing) {
             withContext(Dispatchers.IO) {
@@ -535,7 +535,7 @@ fun triggerDownloadAndInstall(
             val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 10000
             connection.readTimeout = 20000
-            connection.setRequestProperty("User-Agent", "WearAppUpdater/1.9.0")
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
             connection.connect()
 
             val fileLength = connection.contentLength
@@ -628,20 +628,44 @@ fun detectInstalledVersion(context: Context, aliases: List<String>): Pair<String
     return Pair(null, null)
 }
 
-// Query GitHub API for latest release tag, body release notes, and APK download URL
+// Query GitHub Web 302 Redirect (Rate-limit free) or GitHub API for latest release tag
 fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, String?> {
+    // Strategy 1: GitHub Web Redirect (Zero Rate Limit!)
+    try {
+        val webUrl = URL("https://github.com/$repoPath/releases/latest")
+        val conn = webUrl.openConnection() as HttpURLConnection
+        conn.instanceFollowRedirects = false
+        conn.connectTimeout = 6000
+        conn.readTimeout = 6000
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        conn.connect()
+
+        val code = conn.responseCode
+        val location = conn.getHeaderField("Location")
+        conn.disconnect()
+
+        if ((code == 302 || code == 301) && !location.isNullOrEmpty()) {
+            val tag = location.substringAfterLast("/tag/").removePrefix("v")
+            if (tag.isNotEmpty() && tag != location) {
+                val apkUrl = "https://github.com/$repoPath/releases/download/v$tag/app-release.apk"
+                Log.d(TAG, "Web redirect success for $repoPath: Tag = $tag, APK = $apkUrl")
+                return Triple(tag, "Latest GitHub release v$tag", apkUrl)
+            }
+        }
+    } catch (e: Exception) {
+        Log.w(TAG, "Web redirect failed for $repoPath: ${e.message}")
+    }
+
+    // Strategy 2: Fallback to GitHub REST API
     return try {
         val url = URL("https://api.github.com/repos/$repoPath/releases/latest")
         val conn = url.openConnection() as HttpURLConnection
-        conn.connectTimeout = 8000
-        conn.readTimeout = 8000
-        conn.setRequestProperty("User-Agent", "WearAppUpdater/1.9.0")
+        conn.connectTimeout = 6000
+        conn.readTimeout = 6000
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
 
-        Log.d(TAG, "Fetching GitHub release for $repoPath...")
         val code = conn.responseCode
-        Log.d(TAG, "GitHub Response for $repoPath: Code $code")
-
         if (code == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(responseText)
@@ -660,14 +684,11 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
                     }
                 }
             }
-            Log.d(TAG, "Success for $repoPath: Tag = $tag, APK = $downloadUrl")
-            Triple(tag.ifEmpty { null }, body, downloadUrl)
+            Triple(tag.ifEmpty { null }, body, downloadUrl ?: "https://github.com/$repoPath/releases/download/v$tag/app-release.apk")
         } else {
-            Log.w(TAG, "GitHub API returned HTTP $code for $repoPath")
             Triple(null, null, null)
         }
     } catch (e: Exception) {
-        Log.e(TAG, "Exception fetching $repoPath", e)
         Triple(null, null, null)
     }
 }
