@@ -272,7 +272,7 @@ fun UpdaterScreen() {
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                contentPadding = PaddingValues(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 64.dp)
             ) {
                 items(filteredApps) { state ->
                     AppCard(
@@ -297,6 +297,10 @@ fun UpdaterScreen() {
                         }
                     )
                     Spacer(modifier = Modifier.height(6.dp))
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
             }
         }
@@ -500,8 +504,8 @@ fun AppCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = if (state.isExpanded) "📜 Hide ▲" else "📜 Features ▼",
-                        color = Color(0xFF58A6FF),
+                        text = if (state.isExpanded) "📜 Features ▲" else "📜 Features ▼",
+                        color = Color(0xFFFFD600),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -510,42 +514,36 @@ fun AppCard(
                 Column(horizontalAlignment = Alignment.End) {
                     Text(text = "GitHub:", color = Color.Gray, fontSize = 7.5.sp)
                     Text(
-                        text = if (latestVer != null) "v$latestVer" else "Checking...",
-                        color = if (hasUpdate) Color(0xFFFFD54F) else Color(0xFF69F0AE),
+                        text = if (latestVer != null && latestVer != "None") "v$latestVer" else "⏳ Fetching",
+                        color = if (hasUpdate) Color(0xFFFF9100) else Color(0xFF00E5FF),
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            // Expandable Release Notes / Latest Features Below Row 3
+            // Expandable Release Notes / Features Card
             AnimatedVisibility(visible = state.isExpanded) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 6.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF21262D))
+                        .background(Color(0xFF1A1D24))
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "📜 Features & Release Notes (${latestVer ?: "v1.0.0"}):",
-                        color = Color(0xFF58A6FF),
-                        fontSize = 8.5.sp,
+                        text = "🚀 Latest Release Features:",
+                        color = Color(0xFF00E5FF),
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(3.dp))
-                    val notesText = if (!state.releaseNotes.isNull_or_Empty()) {
-                        state.releaseNotes!!
-                    } else {
-                        "• Full Galaxy Watch 6 compatibility\n• Latest performance and bug fixes\n• Direct Wireless ADB installer integration"
-                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = notesText,
-                        color = Color(0xFFC9D1D9),
-                        fontSize = 8.sp,
-                        maxLines = 10,
-                        overflow = TextOverflow.Ellipsis
+                        text = state.releaseNotes ?: getAppDefaultChangelog(state.info.repo, latestVer ?: "latest"),
+                        color = Color.LightGray,
+                        fontSize = 8.5.sp,
+                        lineHeight = 11.sp
                     )
                 }
             }
@@ -559,43 +557,36 @@ fun triggerDownloadAndInstall(
     state: AppUpdateState,
     onStateUpdate: (AppUpdateState) -> Unit
 ) {
-    val apkUrl = state.downloadUrl ?: return
-    onStateUpdate(state.copy(isDownloading = true, downloadProgress = 0, statusText = "Downloading APK..."))
+    onStateUpdate(state.copy(isDownloading = true, downloadProgress = 0, statusText = "Downloading..."))
 
     Thread {
         try {
-            val url = URL(apkUrl)
+            val url = URL(state.downloadUrl)
             val connection = url.openConnection() as HttpURLConnection
-            connection.connectTimeout = 10000
-            connection.readTimeout = 20000
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
             connection.connect()
 
             val fileLength = connection.contentLength
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            if (!downloadsDir.exists()) downloadsDir.mkdirs()
+            val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: context.cacheDir
+            val apkFile = File(downloadsDir, "${state.info.packageName}_update.apk")
 
-            val apkFile = File(downloadsDir, "${state.info.name}-latest.apk")
-            val input = connection.inputStream
-            val output = apkFile.outputStream()
-
-            val data = ByteArray(8192)
-            var total = 0L
-            var count: Int
-            while (input.read(data).also { count = it } != -1) {
-                total += count
-                output.write(data, 0, count)
-                if (fileLength > 0) {
-                    val progress = ((total * 100) / fileLength).toInt()
-                    onStateUpdate(state.copy(isDownloading = true, downloadProgress = progress))
+            connection.inputStream.use { input ->
+                apkFile.outputStream().use { output ->
+                    val data = ByteArray(4096)
+                    var total: Long = 0
+                    var count: Int
+                    while (input.read(data).also { count = it } != -1) {
+                        total += count
+                        if (fileLength > 0) {
+                            val progress = (total * 100 / fileLength).toInt()
+                            onStateUpdate(state.copy(downloadProgress = progress))
+                        }
+                        output.write(data, 0, count)
+                    }
                 }
             }
 
-            output.flush()
-            output.close()
-            input.close()
-
-            // Trigger Installation via FileProvider
             val apkUri: Uri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
@@ -632,21 +623,21 @@ fun launchApp(context: Context, packageName: String) {
 // Uninstall an installed package
 fun uninstallApp(context: Context, packageName: String) {
     try {
-        val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+        val intent = Intent(Intent.ACTION_DELETE).apply {
             data = Uri.parse("package:$packageName")
-            putExtra(Intent.EXTRA_RETURN_RESULT, true)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
     } catch (e: Exception) {
         try {
-            val intent = Intent(Intent.ACTION_DELETE).apply {
+            val intent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
                 data = Uri.parse("package:$packageName")
+                putExtra(Intent.EXTRA_RETURN_RESULT, true)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
         } catch (e2: Exception) {
-            Log.e(TAG, "Failed to launch uninstall for $packageName", e2)
+            Log.e(TAG, "Failed to launch uninstall for $packageName: ${e2.message}")
         }
     }
 }
@@ -769,4 +760,55 @@ fun isVersionNewer(latest: String, installed: String): Boolean {
 
 private fun String?.isNull_or_Empty(): Boolean {
     return this == null || this.trim().isEmpty()
+}
+
+fun fetchReleaseNotes(repoPath: String, tag: String): String {
+    try {
+        val url = URL("https://api.github.com/repos/$repoPath/releases/tags/v$tag")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.connectTimeout = 3000
+        conn.readTimeout = 3000
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        conn.setRequestProperty("Accept", "application/vnd.github+json")
+        if (conn.responseCode == 200) {
+            val responseText = conn.inputStream.bufferedReader().use { it.readText() }
+            val json = JSONObject(responseText)
+            val body = json.optString("body", "").trim()
+            if (body.isNotEmpty()) {
+                return body
+            }
+        }
+    } catch (ignored: Exception) {}
+
+    return getAppDefaultChangelog(repoPath, tag)
+}
+
+fun getAppDefaultChangelog(repoPath: String, tag: String): String {
+    return when {
+        repoPath.contains("WearAppUpdater", ignoreCase = true) ->
+            "⚡ **v$tag Changelog**:\n- 🗑️ Added single-tap App Uninstall button option.\n- 🔄 Added Self-Update detection and in-place updating.\n- ⚡ Added UPDATE ALL batch update button."
+        repoPath.contains("WearHealthSuite", ignoreCase = true) ->
+            "🏥 **v$tag Changelog**:\n- 🧠 Added HRV Stress Index Dial (0-100 score).\n- 🫀 Added Real-time PPG Heart Rate Waveform & Hydration Quick Tracker."
+        repoPath.contains("WearBLEScanner", ignoreCase = true) ->
+            "📡 **v$tag Changelog**:\n- 📡 Added Find My Tag Proximity Radar with RSSI distance estimation & haptic pulse.\n- 📊 Added BLE RSSI Signal Strength Graph."
+        repoPath.contains("WearBaroAlt", ignoreCase = true) ->
+            "🎈 **v$tag Changelog**:\n- 🎈 Added 24-Hour Barometric Weather Station & 3-Day Forecast.\n- 🌩️ Added Storm Alert Warning System."
+        repoPath.contains("WearOSBrowser", ignoreCase = true) ->
+            "🌐 **v$tag Changelog**:\n- 🔍 Added Interactive Search & URL Bar with soft keyboard.\n- 🎯 Added Search Engine Selector (Google, DuckDuckGo, Wikipedia, Bing).\n- ⚡ Added Trending Quick Topics."
+        repoPath.contains("WearFileServer", ignoreCase = true) ->
+            "⚡ **v$tag Changelog**:\n- 📲 Added QR Code Phone Pairing for instant browser connection.\n- 🚀 Added Live Bandwidth Speedometer & Traffic Monitor."
+        repoPath.contains("WearOSFileManager", ignoreCase = true) ->
+            "📁 **v$tag Changelog**:\n- 🖼️ Added Pinch-to-Zoom Photo Viewer with rotary bezel zoom.\n- 📦 Added ZIP Archive Extractor & Integrated MP3 Audio Player."
+        repoPath.contains("WearDiagnostics", ignoreCase = true) ->
+            "🩺 **v$tag Changelog**:\n- 🩺 Added CPU Throttle & Thermal Zone Sensor Monitor.\n- ⏱️ Added Automated 30-Second Hardware Audit & Battery Discharge Benchmark."
+        repoPath.contains("WearMaps", ignoreCase = true) ->
+            "🗺️ **v$tag Changelog**:\n- 🗺️ Added GPX Hiking Trail Navigation Loader.\n- 📍 Added Offline Map Caching & GPS Waypoint Overlay."
+        repoPath.contains("WearCompass", ignoreCase = true) ->
+            "🧭 **v$tag Changelog**:\n- ☀️ Added Sun & Moon Azimuth Direction Bearings.\n- 🎯 Added Target Waypoint Pointer & Bullseye Level."
+        repoPath.contains("WearWifiTools", ignoreCase = true) ->
+            "📶 **v$tag Changelog**:\n- 🖥️ Added Subnet LAN Network Device Scanner (192.168.x.x).\n- 📶 Added Ping Latency Monitor & Wi-Fi Channel Heatmap."
+        repoPath.contains("WearOSPDFReader", ignoreCase = true) ->
+            "📄 **v$tag Changelog**:\n- 🌙 Added Pitch Black OLED Dark Mode Color Inversion.\n- 🔖 Added Bookmark Manager & Rotary Bezel Page Zoom."
+        else -> "✨ **v$tag Changelog**:\n- Performance optimizations and bug fixes for Wear OS."
+    }
 }

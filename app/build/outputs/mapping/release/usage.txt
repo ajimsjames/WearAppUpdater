@@ -2494,7 +2494,6 @@ androidx.compose.foundation.layout.PaddingElement:
 androidx.compose.foundation.layout.PaddingKt$absolutePadding$1
 androidx.compose.foundation.layout.PaddingKt$padding$4
 androidx.compose.foundation.layout.PaddingKt:
-    public static final androidx.compose.foundation.layout.PaddingValues PaddingValues-a9UjIt4(float,float,float,float)
     public static synthetic androidx.compose.foundation.layout.PaddingValues PaddingValues-a9UjIt4$default(float,float,float,float,int,java.lang.Object)
     public static final androidx.compose.ui.Modifier absolutePadding-qDBjuR0(androidx.compose.ui.Modifier,float,float,float,float)
     public static synthetic androidx.compose.ui.Modifier absolutePadding-qDBjuR0$default(androidx.compose.ui.Modifier,float,float,float,float,int,java.lang.Object)
@@ -2809,11 +2808,7 @@ androidx.compose.foundation.lazy.LazyListBeyondBoundsState:
     public final androidx.compose.foundation.lazy.LazyListState getState()
 androidx.compose.foundation.lazy.LazyListInterval:
     public static final int $stable
-androidx.compose.foundation.lazy.LazyListIntervalContent$item$1
-androidx.compose.foundation.lazy.LazyListIntervalContent$item$2
-androidx.compose.foundation.lazy.LazyListIntervalContent$item$3
 androidx.compose.foundation.lazy.LazyListIntervalContent:
-    public void item(java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function3)
     public void stickyHeader(java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function3)
 androidx.compose.foundation.lazy.LazyListItemInfo:
     public java.lang.Object getContentType()
@@ -2858,9 +2853,7 @@ androidx.compose.foundation.lazy.LazyListScope:
     public static synthetic void access$item$jd(androidx.compose.foundation.lazy.LazyListScope,java.lang.Object,kotlin.jvm.functions.Function3)
     public static synthetic void access$items$jd(androidx.compose.foundation.lazy.LazyListScope,int,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function4)
     public static synthetic void access$items$jd(androidx.compose.foundation.lazy.LazyListScope,int,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function4)
-    public void item(java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function3)
     public synthetic void item(java.lang.Object,kotlin.jvm.functions.Function3)
-    public static synthetic void item$default(androidx.compose.foundation.lazy.LazyListScope,java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function3,int,java.lang.Object)
     public static synthetic void item$default(androidx.compose.foundation.lazy.LazyListScope,java.lang.Object,kotlin.jvm.functions.Function3,int,java.lang.Object)
     public synthetic void items(int,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function4)
     public static synthetic void items$default(androidx.compose.foundation.lazy.LazyListScope,int,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function1,kotlin.jvm.functions.Function4,int,java.lang.Object)
@@ -24125,7 +24118,6 @@ kotlin.text.StringsKt__StringsKt:
     public static synthetic java.lang.String commonPrefixWith$default(java.lang.CharSequence,java.lang.CharSequence,boolean,int,java.lang.Object)
     public static final java.lang.String commonSuffixWith(java.lang.CharSequence,java.lang.CharSequence,boolean)
     public static synthetic java.lang.String commonSuffixWith$default(java.lang.CharSequence,java.lang.CharSequence,boolean,int,java.lang.Object)
-    public static final boolean contains(java.lang.CharSequence,java.lang.CharSequence,boolean)
     private static final boolean contains(java.lang.CharSequence,kotlin.text.Regex)
     public static synthetic boolean contains$default(java.lang.CharSequence,java.lang.CharSequence,boolean,int,java.lang.Object)
     public static final boolean contentEqualsIgnoreCaseImpl(java.lang.CharSequence,java.lang.CharSequence)
@@ -27972,7 +27964,7 @@ androidx.compose.foundation.layout.PaddingKt$padding$3:
     public final void invoke$1()
     public final void invoke$6()
 androidx.compose.foundation.layout.PaddingKt:
-    public static final androidx.compose.foundation.layout.PaddingValuesImpl PaddingValues-YgX7TsA(float,float)
+    public static final androidx.compose.foundation.layout.PaddingValuesImpl PaddingValues-a9UjIt4(float,float,float,float)
     public static final float getWeight(androidx.compose.foundation.layout.RowColumnParentData)
     public static final boolean isRelative()
     public static androidx.compose.ui.Modifier padding-VpY3zN4$default(androidx.compose.ui.Modifier,float)
@@ -28051,7 +28043,6 @@ androidx.compose.foundation.layout.SizeKt:
     public static final androidx.compose.foundation.layout.WrapContentElement WrapContentWidthCenter
     public static final androidx.compose.foundation.layout.WrapContentElement WrapContentWidthStart
     public static androidx.compose.ui.Modifier fillMaxSize$default()
-    public static synthetic androidx.compose.ui.Modifier fillMaxWidth$default()
 androidx.compose.foundation.layout.SizeMode$EnumUnboxingLocalUtility:
     static void <clinit>()
     public static int _valueOf(java.lang.String)
@@ -28112,6 +28103,12 @@ androidx.compose.foundation.lazy.LazyListInterval:
     public static kotlin.jvm.functions.Function4 getItem()
     public final kotlin.jvm.functions.Function1 getKey()
     public final kotlin.jvm.functions.Function1 getType()
+androidx.compose.foundation.lazy.LazyListIntervalContent$item$1:
+    public final java.lang.Object invoke(int)
+androidx.compose.foundation.lazy.LazyListIntervalContent$item$2
+androidx.compose.foundation.lazy.LazyListIntervalContent$item$3:
+    public final void invoke(androidx.compose.foundation.lazy.LazyItemScope,int,androidx.compose.runtime.Composer,int)
+    public static android.graphics.Typeface invoke-DPcqOEQ()
 androidx.compose.foundation.lazy.LazyListIntervalContent:
     public static final int $stable
     public java.util.List _headerIndexes
@@ -28119,6 +28116,7 @@ androidx.compose.foundation.lazy.LazyListIntervalContent:
     public static java.util.List getHeaderIndexes()
     public final androidx.compose.foundation.lazy.layout.IntervalList getIntervals()
     public static androidx.compose.foundation.lazy.layout.MutableIntervalList getIntervals()
+    public final void item()
     public final void items()
 androidx.compose.foundation.lazy.LazyListItemAnimator$ItemInfo:
     public androidx.compose.foundation.lazy.layout.LazyLayoutAnimation[] animations
@@ -28232,6 +28230,7 @@ androidx.compose.foundation.lazy.LazyListMeasuredItem:
     public static void setNonScrollableItem()
 androidx.compose.foundation.lazy.LazyListMeasuredItemProvider
 androidx.compose.foundation.lazy.LazyListScope:
+    public abstract void item()
     public abstract void items()
 androidx.compose.foundation.lazy.LazyListScrollPosition:
     public static final int $stable
@@ -28506,7 +28505,6 @@ androidx.compose.foundation.lazy.layout.Lazy_androidKt
 androidx.compose.foundation.lazy.layout.MutableIntervalList:
     public static final int $stable
     static void <clinit>()
-    public static void addInterval()
     public static boolean contains()
     public final void forEach()
     public static androidx.compose.foundation.lazy.layout.IntervalList$Interval getIntervalForIndex()
@@ -34869,8 +34867,7 @@ androidx.compose.ui.text.platform.AndroidAccessibilitySpannableString_androidKt
 androidx.compose.ui.text.platform.AndroidMultiParagraphDraw_androidKt
 androidx.compose.ui.text.platform.AndroidParagraphHelper_androidKt:
     public static final boolean isIncludeFontPaddingEnabled(androidx.compose.ui.text.TextStyle)
-androidx.compose.ui.text.platform.AndroidParagraphIntrinsics$resolveTypeface$1:
-    public static android.graphics.Typeface invoke-DPcqOEQ()
+androidx.compose.ui.text.platform.AndroidParagraphIntrinsics$resolveTypeface$1
 androidx.compose.ui.text.platform.AndroidParagraphIntrinsics:
     public static final int $stable
     static void <clinit>()
@@ -36488,6 +36485,7 @@ com.example.wearappupdater.MainActivity:
     static void <clinit>()
 com.example.wearappupdater.ui.AppUpdateState:
     static void <clinit>()
+com.example.wearappupdater.ui.UpdaterScreenKt$$InternalSyntheticLambda$1$71ef7506d9ed63f74ffd823243a5756e8b90d452da44d819f72a53e71ad5376d$0
 com.example.wearappupdater.ui.WatchAppInfo:
     static void <clinit>()
 com.google.android.gms.auth.api.signin.GoogleSignInAccount:
@@ -37564,6 +37562,7 @@ kotlin.text.StringsKt__StringsKt$rangesDelimitedBy$2:
     public final kotlin.coroutines.CoroutineContext invoke$1()
 kotlin.text.StringsKt__StringsKt$splitToSequence$1
 kotlin.text.StringsKt__StringsKt:
+    public static synthetic int indexOf$StringsKt__StringsKt$default(java.lang.CharSequence,java.lang.CharSequence,int,int,boolean)
     public static final void requireNonNegativeLimit(int)
     public static boolean startsWith$default(java.lang.String,java.lang.String)
     public static final java.lang.String substring(java.lang.CharSequence,kotlin.ranges.IntRange)
