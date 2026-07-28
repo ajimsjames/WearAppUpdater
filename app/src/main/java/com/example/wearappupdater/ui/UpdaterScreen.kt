@@ -399,14 +399,24 @@ fun AppCard(
                     Text(state.info.iconEmoji, fontSize = 16.sp)
                 }
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = state.info.name,
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = state.info.name,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = state.info.packageName,
+                        color = Color(0xFF81D4FA),
+                        fontSize = 7.5.sp,
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(6.dp))

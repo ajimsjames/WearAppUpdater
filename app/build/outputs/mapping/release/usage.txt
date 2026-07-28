@@ -27970,7 +27970,6 @@ androidx.compose.foundation.layout.PaddingKt:
     public static final androidx.compose.foundation.layout.PaddingValuesImpl PaddingValues-a9UjIt4(float,float,float,float)
     public static final float getWeight(androidx.compose.foundation.layout.RowColumnParentData)
     public static final boolean isRelative()
-    public static androidx.compose.ui.Modifier padding-VpY3zN4$default(androidx.compose.ui.Modifier,float)
 androidx.compose.foundation.layout.PaddingNode$measure$1
 androidx.compose.foundation.layout.PaddingNode:
     public static boolean getRtlAware()

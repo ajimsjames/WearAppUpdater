@@ -11,8 +11,8 @@ android {
         applicationId = "com.ajimsjames.wearappupdater"
         minSdk = 30
         targetSdk = 33
-        versionCode = 18
-        versionName = "3.0.0"
+        versionCode = 19
+        versionName = "3.1.0"
 
         vectorDrawables {
             useSupportLibrary = true
