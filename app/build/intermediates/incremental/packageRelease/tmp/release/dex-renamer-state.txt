@@ -1,4 +1,4 @@
-#Tue Jul 28 14:58:16 IST 2026
+#Tue Jul 28 15:05:42 IST 2026
 base.0=/home/aju/WearAppUpdater/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
