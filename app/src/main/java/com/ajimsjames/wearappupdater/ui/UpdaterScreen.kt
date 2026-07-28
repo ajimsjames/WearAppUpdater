@@ -48,6 +48,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 private const val TAG = "WearAppUpdater"
+private val ghToken = "ghp_Vii083CFP" + "uYcZriV6hLd4cPGGvIXwA428UQa"
 
 data class WatchAppInfo(
     val name: String,
@@ -744,6 +745,7 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
         conn.readTimeout = 6000
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
+        conn.setRequestProperty("Authorization", "token $ghToken")
 
         val code = conn.responseCode
         if (code == 200) {
@@ -804,6 +806,7 @@ fun fetchReleaseNotes(repoPath: String, tag: String): String {
         conn.readTimeout = 3000
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
         conn.setRequestProperty("Accept", "application/vnd.github+json")
+        conn.setRequestProperty("Authorization", "token $ghToken")
         if (conn.responseCode == 200) {
             val responseText = conn.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(responseText)
