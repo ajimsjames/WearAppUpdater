@@ -117,6 +117,17 @@ drawable common_google_signin_btn_text_light_normal
 drawable common_google_signin_btn_text_light_normal_background
 drawable googleg_disabled_color_18
 drawable googleg_standard_color_18
+drawable ic_app_baroalt
+drawable ic_app_blescanner
+drawable ic_app_compass
+drawable ic_app_diagnostics
+drawable ic_app_filemanager
+drawable ic_app_fileserver
+drawable ic_app_healthsuite
+drawable ic_app_maps
+drawable ic_app_pdfreader
+drawable ic_app_updater
+drawable ic_app_wifitools
 drawable ic_call_answer
 drawable ic_call_answer_low
 drawable ic_call_answer_video

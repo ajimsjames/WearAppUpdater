@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.painterResource
+import androidx.wear.compose.material.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -349,10 +352,11 @@ fun AppCard(
         }
     }
 
-    val cardBg = when {
-        hasUpdate -> Color(0xFF332000) // Amber accent for pending update
-        instVer != null -> Color(0xFF161B22) // Sleek dark gray for installed
-        else -> Color(0xFF1C1C1E)
+    val cardBg = Color.Black
+    val cardBorderColor = when {
+        hasUpdate -> Color(0xFFFF9100)
+        instVer != null -> Color(0xFF2E7D32)
+        else -> Color(0xFF222222)
     }
 
     val actionBtnColor = when {
@@ -375,6 +379,7 @@ fun AppCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(cardBg)
+            .border(1.dp, cardBorderColor, RoundedCornerShape(12.dp))
             .padding(8.dp)
     ) {
         Column {
@@ -396,7 +401,26 @@ fun AppCard(
                             .clip(CircleShape)
                     )
                 } else {
-                    Text(state.info.iconEmoji, fontSize = 16.sp)
+                    val fallbackIconRes = when (state.info.packageName) {
+                        "com.ajimsjames.wearappupdater" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_updater
+                        "com.ajimsjames.wearhealthsuite" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_healthsuite
+                        "com.ajimsjames.wearblescanner" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_blescanner
+                        "com.ajimsjames.wearbaroalt" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_baroalt
+                        "com.ajimsjames.wearfileserver" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_fileserver
+                        "com.ajimsjames.wearfilemanager" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_filemanager
+                        "com.ajimsjames.weardiagnostics" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_diagnostics
+                        "com.ajimsjames.wearmaps" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_maps
+                        "com.ajimsjames.wearcompass" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_compass
+                        "com.ajimsjames.wearwifitools" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_wifitools
+                        "com.ajimsjames.wearpdfreader" -> com.ajimsjames.wearappupdater.R.drawable.ic_app_pdfreader
+                        else -> com.ajimsjames.wearappupdater.R.drawable.ic_launcher
+                    }
+                    Icon(
+                        painter = painterResource(id = fallbackIconRes),
+                        contentDescription = state.info.name,
+                        modifier = Modifier.size(20.dp),
+                        tint = Color.Unspecified
+                    )
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 Column(modifier = Modifier.weight(1f)) {

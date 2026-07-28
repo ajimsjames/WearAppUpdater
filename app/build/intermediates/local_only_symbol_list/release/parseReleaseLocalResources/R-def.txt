@@ -1,5 +1,16 @@
 R_DEF: Internal format may change without notice
 local
+drawable ic_app_baroalt
+drawable ic_app_blescanner
+drawable ic_app_compass
+drawable ic_app_diagnostics
+drawable ic_app_filemanager
+drawable ic_app_fileserver
+drawable ic_app_healthsuite
+drawable ic_app_maps
+drawable ic_app_pdfreader
+drawable ic_app_updater
+drawable ic_app_wifitools
 drawable ic_launcher
 drawable ic_launcher_round
 xml file_paths
