@@ -17,7 +17,6 @@
         <package android:name="com.example.wearhealthsuite" />
         <package android:name="com.example.wearblescanner" />
         <package android:name="com.example.wearbaroalt" />
-        <package android:name="com.example.wearosbrowser" />
         <package android:name="com.example.wearfileserver" />
         <package android:name="com.example.wearfilemanager" />
         <package android:name="com.example.wearosfilemanager" />

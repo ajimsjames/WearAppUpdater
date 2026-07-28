@@ -80,7 +80,6 @@ fun UpdaterScreen() {
             WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.example.wearhealthsuite", listOf("com.example.wearhealthsuite"), "🏥"),
             WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.example.wearblescanner", listOf("com.example.wearblescanner"), "📡"),
             WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.example.wearbaroalt", listOf("com.example.wearbaroalt"), "🎈"),
-            WatchAppInfo("WearOSBrowser", "ajimsjames/WearOSBrowser", "com.example.wearosbrowser", listOf("com.example.wearosbrowser"), "🌐"),
             WatchAppInfo("WearFileServer", "ajimsjames/WearFileServer", "com.example.wearfileserver", listOf("com.example.wearfileserver"), "⚡"),
             WatchAppInfo("WearFileManager", "ajimsjames/WearOSFileManager", "com.example.wearfilemanager", listOf("com.example.wearfilemanager", "com.example.wearosfilemanager"), "📁"),
             WatchAppInfo("WearDiagnostics", "ajimsjames/WearDiagnostics", "com.example.weardiagnostics", listOf("com.example.weardiagnostics"), "🩺"),
@@ -694,8 +693,9 @@ fun fetchLatestGitHubReleaseDetails(repoPath: String): Triple<String?, String?, 
             val tag = location.substringAfterLast("/tag/").removePrefix("v")
             if (tag.isNotEmpty() && tag != location) {
                 val apkUrl = "https://github.com/$repoPath/releases/download/v$tag/app-release.apk"
+                val notes = fetchReleaseNotes(repoPath, tag)
                 Log.d(TAG, "Web redirect success for $repoPath: Tag = $tag, APK = $apkUrl")
-                return Triple(tag, "Latest GitHub release v$tag", apkUrl)
+                return Triple(tag, notes, apkUrl)
             }
         }
     } catch (e: Exception) {
