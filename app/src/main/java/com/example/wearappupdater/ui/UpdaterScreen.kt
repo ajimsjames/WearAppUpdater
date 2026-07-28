@@ -76,17 +76,17 @@ fun UpdaterScreen() {
 
     val appList = remember {
         listOf(
-            WatchAppInfo("WearAppUpdater", "ajimsjames/WearAppUpdater", "com.example.wearappupdater", listOf("com.example.wearappupdater"), "🔄"),
-            WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.example.wearhealthsuite", listOf("com.example.wearhealthsuite"), "🏥"),
-            WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.example.wearblescanner", listOf("com.example.wearblescanner"), "📡"),
-            WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.example.wearbaroalt", listOf("com.example.wearbaroalt"), "🎈"),
-            WatchAppInfo("WearFileServer", "ajimsjames/WearFileServer", "com.example.wearfileserver", listOf("com.example.wearfileserver"), "⚡"),
-            WatchAppInfo("WearFileManager", "ajimsjames/WearOSFileManager", "com.example.wearfilemanager", listOf("com.example.wearfilemanager", "com.example.wearosfilemanager"), "📁"),
-            WatchAppInfo("WearDiagnostics", "ajimsjames/WearDiagnostics", "com.example.weardiagnostics", listOf("com.example.weardiagnostics"), "🩺"),
-            WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.example.wearmaps", listOf("com.example.wearmaps"), "🗺️"),
-            WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.example.wearcompass", listOf("com.example.wearcompass"), "🧭"),
-            WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.example.wearwifitools", listOf("com.example.wearwifitools"), "📶"),
-            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.example.wearpdfreader", listOf("com.example.wearpdfreader"), "📄")
+            WatchAppInfo("WearAppUpdater", "ajimsjames/WearAppUpdater", "com.ajimsjames.wearappupdater", listOf("com.ajimsjames.wearappupdater", "com.example.wearappupdater"), "🔄"),
+            WatchAppInfo("WearHealthSuite", "ajimsjames/WearHealthSuite", "com.ajimsjames.wearhealthsuite", listOf("com.ajimsjames.wearhealthsuite", "com.example.wearhealthsuite"), "🏥"),
+            WatchAppInfo("WearBLEScanner", "ajimsjames/WearBLEScanner", "com.ajimsjames.wearblescanner", listOf("com.ajimsjames.wearblescanner", "com.example.wearblescanner"), "📡"),
+            WatchAppInfo("WearBaroAlt", "ajimsjames/WearBaroAlt", "com.ajimsjames.wearbaroalt", listOf("com.ajimsjames.wearbaroalt", "com.example.wearbaroalt"), "🎈"),
+            WatchAppInfo("WearFileServer", "ajimsjames/WearFileServer", "com.ajimsjames.wearfileserver", listOf("com.ajimsjames.wearfileserver", "com.example.wearfileserver"), "⚡"),
+            WatchAppInfo("WearFileManager", "ajimsjames/WearOSFileManager", "com.ajimsjames.wearfilemanager", listOf("com.ajimsjames.wearfilemanager", "com.example.wearfilemanager", "com.example.wearosfilemanager"), "📁"),
+            WatchAppInfo("WearDiagnostics", "ajimsjames/WearDiagnostics", "com.ajimsjames.weardiagnostics", listOf("com.ajimsjames.weardiagnostics", "com.example.weardiagnostics"), "🩺"),
+            WatchAppInfo("WearMaps", "ajimsjames/WearMaps", "com.ajimsjames.wearmaps", listOf("com.ajimsjames.wearmaps", "com.example.wearmaps"), "🗺️"),
+            WatchAppInfo("WearCompass", "ajimsjames/WearCompass", "com.ajimsjames.wearcompass", listOf("com.ajimsjames.wearcompass", "com.example.wearcompass"), "🧭"),
+            WatchAppInfo("WearWifiTools", "ajimsjames/WearWifiTools", "com.ajimsjames.wearwifitools", listOf("com.ajimsjames.wearwifitools", "com.example.wearwifitools"), "📶"),
+            WatchAppInfo("WearPDFReader", "ajimsjames/WearOSPDFReader", "com.ajimsjames.wearpdfreader", listOf("com.ajimsjames.wearpdfreader", "com.example.wearpdfreader"), "📄")
         )
     }
 

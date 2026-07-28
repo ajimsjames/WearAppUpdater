@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.wearappupdater"
-    android:versionCode="17"
-    android:versionName="2.6.0" >
+    package="com.ajimsjames.wearappupdater"
+    android:versionCode="18"
+    android:versionName="3.0.0" >
 
     <uses-sdk
         android:minSdkVersion="30"
@@ -24,6 +24,17 @@
     <uses-feature android:name="android.hardware.type.watch" />
 
     <queries>
+        <package android:name="com.ajimsjames.wearappupdater" />
+        <package android:name="com.ajimsjames.wearhealthsuite" />
+        <package android:name="com.ajimsjames.wearblescanner" />
+        <package android:name="com.ajimsjames.wearbaroalt" />
+        <package android:name="com.ajimsjames.wearfileserver" />
+        <package android:name="com.ajimsjames.wearfilemanager" />
+        <package android:name="com.ajimsjames.weardiagnostics" />
+        <package android:name="com.ajimsjames.wearmaps" />
+        <package android:name="com.ajimsjames.wearcompass" />
+        <package android:name="com.ajimsjames.wearwifitools" />
+        <package android:name="com.ajimsjames.wearpdfreader" />
         <package android:name="com.example.wearhealthsuite" />
         <package android:name="com.example.wearblescanner" />
         <package android:name="com.example.wearbaroalt" />
@@ -45,10 +56,10 @@
     </queries>
 
     <permission
-        android:name="com.example.wearappupdater.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.ajimsjames.wearappupdater.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.example.wearappupdater.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.ajimsjames.wearappupdater.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
         android:allowBackup="true"
@@ -61,7 +72,7 @@
         android:theme="@android:style/Theme.DeviceDefault"
         android:usesCleartextTraffic="true" >
         <activity
-            android:name="com.example.wearappupdater.MainActivity"
+            android:name="com.ajimsjames.wearappupdater.MainActivity"
             android:exported="true"
             android:taskAffinity=""
             android:theme="@android:style/Theme.DeviceDefault" >
@@ -74,7 +85,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.wearappupdater.fileprovider"
+            android:authorities="com.ajimsjames.wearappupdater.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data
@@ -93,7 +104,7 @@
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.example.wearappupdater.androidx-startup"
+            android:authorities="com.ajimsjames.wearappupdater.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

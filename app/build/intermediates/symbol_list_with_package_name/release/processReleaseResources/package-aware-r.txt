@@ -1,4 +1,4 @@
-com.example.wearappupdater
+com.ajimsjames.wearappupdater
 attr action
 attr alpha
 attr argType

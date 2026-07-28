@@ -14,6 +14,17 @@
     <uses-feature android:name="android.hardware.type.watch" />
 
     <queries>
+        <package android:name="com.ajimsjames.wearappupdater" />
+        <package android:name="com.ajimsjames.wearhealthsuite" />
+        <package android:name="com.ajimsjames.wearblescanner" />
+        <package android:name="com.ajimsjames.wearbaroalt" />
+        <package android:name="com.ajimsjames.wearfileserver" />
+        <package android:name="com.ajimsjames.wearfilemanager" />
+        <package android:name="com.ajimsjames.weardiagnostics" />
+        <package android:name="com.ajimsjames.wearmaps" />
+        <package android:name="com.ajimsjames.wearcompass" />
+        <package android:name="com.ajimsjames.wearwifitools" />
+        <package android:name="com.ajimsjames.wearpdfreader" />
         <package android:name="com.example.wearhealthsuite" />
         <package android:name="com.example.wearblescanner" />
         <package android:name="com.example.wearbaroalt" />

@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wearappupdater"
+    namespace = "com.ajimsjames.wearappupdater"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wearappupdater"
+        applicationId = "com.ajimsjames.wearappupdater"
         minSdk = 30
         targetSdk = 33
-        versionCode = 17
-        versionName = "2.6.0"
+        versionCode = 18
+        versionName = "3.0.0"
 
         vectorDrawables {
             useSupportLibrary = true
