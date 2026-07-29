@@ -16,14 +16,6 @@
         "source": "com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_app_wifitools.xml"
     },
     {
-        "merged": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_launcher_round.xml.flat",
-        "source": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_launcher_round.xml"
-    },
-    {
-        "merged": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-release-53:/xml_file_paths.xml.flat",
-        "source": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-main-54:/xml/file_paths.xml"
-    },
-    {
         "merged": "com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_app_blescanner.xml.flat",
         "source": "com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_app_blescanner.xml"
     },
@@ -48,16 +40,16 @@
         "source": "com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_app_fileserver.xml"
     },
     {
+        "merged": "com.ajimsjames.wearappupdater.app-release-53:/xml_file_paths.xml.flat",
+        "source": "com.ajimsjames.wearappupdater.app-main-54:/xml/file_paths.xml"
+    },
+    {
         "merged": "com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_launcher_round.xml.flat",
         "source": "com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_launcher_round.xml"
     },
     {
         "merged": "com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_app_baroalt.xml.flat",
         "source": "com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_app_baroalt.xml"
-    },
-    {
-        "merged": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_launcher.xml.flat",
-        "source": "/home/aju/.gradle/daemon/8.4/com.ajimsjames.wearappupdater.app-main-54:/drawable/ic_launcher.xml"
     },
     {
         "merged": "com.ajimsjames.wearappupdater.app-release-53:/drawable_ic_app_maps.xml.flat",
